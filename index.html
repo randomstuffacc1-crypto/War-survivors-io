@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#07111f" />
+  <meta name="description" content="Siege Surge is a fast, mobile-first lane shooter built for the web." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Siege Surge</title>
+</head>
+<body>
+  <main id="app" aria-label="Siege Surge game">
+    <section class="game-shell">
+      <canvas id="game" width="720" height="1280" aria-label="Game field"></canvas>
+
+      <div id="hud" class="hud hidden" aria-live="polite">
+        <div class="hud-row">
+          <div class="pill"><span class="label">Wave</span><strong id="waveValue">1</strong></div>
+          <div class="pill wide"><span class="label">Wall</span><div class="meter"><i id="wallMeter"></i></div><strong id="wallValue">100</strong></div>
+          <button id="soundBtn" class="icon-btn" aria-label="Mute sound">♪</button>
+          <button id="pauseBtn" class="icon-btn" aria-label="Pause game">Ⅱ</button>
+        </div>
+        <div class="hud-row lower">
+          <div class="pill"><span class="label">Squad</span><strong id="squadValue">8</strong></div>
+          <div class="pill"><span class="label">Power</span><strong id="powerValue">1.0×</strong></div>
+          <div class="pill coin"><span class="coin-dot">◆</span><strong id="runCoinsValue">0</strong></div>
+        </div>
+      </div>
+
+      <div id="toast" class="toast hidden" role="status"></div>
+
+      <section id="homeScreen" class="screen home-screen">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <p class="eyebrow">THE LAST LINE</p>
+          <h1>SIEGE<br><em>SURGE</em></h1>
+          <p class="tagline">Slide. Multiply. Hold the wall.</p>
+        </div>
+
+        <div class="home-actions">
+          <button id="playBtn" class="primary-btn">Deploy</button>
+          <div class="secondary-row">
+            <button id="upgradesBtn" class="secondary-btn">
+              <span>Armory</span><small id="homeCoins">0 ◆</small>
+            </button>
+            <button id="howBtn" class="secondary-btn">How to play</button>
+          </div>
+        </div>
+
+        <p class="desktop-hint">Drag, use A / D, or ← / →</p>
+      </section>
+
+      <section id="pauseScreen" class="screen glass-screen hidden" aria-modal="true" role="dialog">
+        <div class="panel compact">
+          <p class="eyebrow">TACTICAL HOLD</p>
+          <h2>Paused</h2>
+          <button id="resumeBtn" class="primary-btn">Resume</button>
+          <button id="restartBtn" class="secondary-btn full">Restart run</button>
+          <button id="quitBtn" class="text-btn">Return to base</button>
+        </div>
+      </section>
+
+      <section id="upgradeChoiceScreen" class="screen glass-screen hidden" aria-modal="true" role="dialog">
+        <div class="panel choice-panel">
+          <p class="eyebrow">FIELD SUPPLY</p>
+          <h2>Choose one</h2>
+          <div id="upgradeChoices" class="choice-grid"></div>
+        </div>
+      </section>
+
+      <section id="gameOverScreen" class="screen glass-screen hidden" aria-modal="true" role="dialog">
+        <div class="panel compact">
+          <p class="eyebrow">LINE OVERRUN</p>
+          <h2>Run complete</h2>
+          <div class="result-grid">
+            <div><span>Wave</span><strong id="finalWave">1</strong></div>
+            <div><span>Eliminated</span><strong id="finalKills">0</strong></div>
+            <div><span>Recovered</span><strong id="finalCoins">0 ◆</strong></div>
+          </div>
+          <button id="retryBtn" class="primary-btn">Deploy again</button>
+          <button id="baseBtn" class="secondary-btn full">Return to base</button>
+        </div>
+      </section>
+
+      <section id="modalScreen" class="screen glass-screen hidden" aria-modal="true" role="dialog">
+        <div class="panel modal-panel">
+          <button id="modalClose" class="close-btn" aria-label="Close">×</button>
+          <div id="modalContent"></div>
+        </div>
+      </section>
+
+      <div class="edge-vignette" aria-hidden="true"></div>
+    </section>
+  </main>
+  <script type="module" src="src/game.js"></script>
+</body>
+</html>

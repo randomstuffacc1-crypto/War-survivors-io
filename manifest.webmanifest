@@ -1,0 +1,14 @@
+{
+  "name": "Siege Surge",
+  "short_name": "Siege Surge",
+  "description": "A mobile-first lane shooter. Slide, multiply, and hold the wall.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#03070e",
+  "theme_color": "#07111f",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
