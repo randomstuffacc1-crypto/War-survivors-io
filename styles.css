@@ -38,7 +38,7 @@ button:focus-visible { outline: 3px solid rgba(51,221,255,.8); outline-offset: 3
   box-shadow: var(--shadow);
   isolation: isolate;
 }
-canvas { width: 100%; height: 100%; display: block; background: #0a1524; }
+canvas { position:absolute; inset:0; z-index:1; width:100%; height:100%; display:block; background:#0a1524; }
 .hidden { display: none !important; }
 
 .screen {
@@ -159,3 +159,6 @@ h1 em { color: transparent; -webkit-text-stroke: 2px var(--cyan); font-style: no
 @media (min-aspect-ratio: 3/4) {
   .game-shell { border-radius: 26px; }
 }
+
+#modalScreen, #pauseScreen, #upgradeChoiceScreen, #gameOverScreen { z-index: 100; pointer-events: auto; }
+#modalScreen .panel { pointer-events: auto; }

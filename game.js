@@ -589,16 +589,45 @@ function drawParticles() {
   ctx.globalAlpha=1;
 }
 
-function render() {
-  ctx.save();
-  const sx=state.shake?rand(-state.shake,state.shake):0, sy=state.shake?rand(-state.shake*.55,state.shake*.55):0;
-  ctx.translate(sx,sy);
-  drawBackground(state.mode==='home');
-  if(state.mode!=='home'){
-    drawGates(); drawWall(); drawEnemies(); drawBullets(); drawPickups(); drawPlayer(); drawParticles();
+function safeRenderFallback() {
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#14233a'); bg.addColorStop(1,'#07111f');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#0b1828';
+  ctx.beginPath(); ctx.moveTo(250,320); ctx.lineTo(470,320); ctx.lineTo(620,H); ctx.lineTo(100,H); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='rgba(90,220,255,.18)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(250,320); ctx.lineTo(100,H); ctx.moveTo(470,320); ctx.lineTo(620,H); ctx.stroke();
+  for (const row of state.gates) {
+    const y=row.y, t=clamp((y-320)/(H-320),0,1), w=lerp(85,210,t);
+    const drawSimpleGate=(g,x)=>{ctx.fillStyle=g.color;ctx.fillRect(x,y,w,84);ctx.fillStyle='rgba(4,12,24,.8)';ctx.fillRect(x+6,y+6,w-12,72);ctx.fillStyle='#fff';ctx.font='bold 30px sans-serif';ctx.textAlign='center';ctx.fillText(g.label,x+w/2,y+40);ctx.fillStyle=g.color;ctx.font='bold 12px sans-serif';ctx.fillText(g.sub,x+w/2,y+62);};
+    drawSimpleGate(row.left,W/2-6-w); drawSimpleGate(row.right,W/2+6);
   }
-  ctx.restore();
-  if(state.flash>0){ctx.fillStyle=`rgba(255,72,96,${state.flash*.42})`;ctx.fillRect(0,0,W,H);}
+  ctx.fillStyle='#263a50';ctx.fillRect(95,WALL_Y,530,80);
+  ctx.fillStyle='#dbeafe';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('LAST LINE',W/2,WALL_Y+48);
+  for(const e of state.enemies){ctx.fillStyle=e.hit>0?'#fff':e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();}
+  ctx.strokeStyle='#8ff4ff';ctx.lineWidth=5;for(const b of state.bullets){ctx.beginPath();ctx.moveTo(b.x,b.y+20);ctx.lineTo(b.x,b.y);ctx.stroke();}
+  const n=Math.min(60,Math.max(1,Math.round(state.player.squad)));
+  for(let i=0;i<n;i++){const f=getFormation(i,n);ctx.fillStyle='#2b91ff';ctx.beginPath();ctx.arc(state.player.x+f.x,PLAYER_Y+f.y,7,0,Math.PI*2);ctx.fill();}
+}
+
+function render() {
+  try {
+    ctx.save();
+    const sx=state.shake?rand(-state.shake,state.shake):0, sy=state.shake?rand(-state.shake*.55,state.shake*.55):0;
+    ctx.translate(sx,sy);
+    drawBackground(state.mode==='home');
+    if(state.mode!=='home'){
+      drawGates(); drawWall(); drawEnemies(); drawBullets(); drawPickups(); drawPlayer(); drawParticles();
+    }
+    ctx.restore();
+    if(state.flash>0){ctx.fillStyle=`rgba(255,72,96,${state.flash*.42})`;ctx.fillRect(0,0,W,H);}
+  } catch (err) {
+    console.error('Primary renderer failed; using fallback renderer.', err);
+    try { safeRenderFallback(); } catch (fallbackErr) { console.error(fallbackErr); }
+  }
 }
 
 function loop(now) {
@@ -668,14 +697,15 @@ $('#restartBtn').addEventListener('click',()=>{ui.pause.classList.add('hidden');
 $('#quitBtn').addEventListener('click',()=>{ui.pause.classList.add('hidden');showHome();});
 $('#retryBtn').addEventListener('click',resetRun);
 $('#baseBtn').addEventListener('click',showHome);
-$('#howBtn').addEventListener('click',showHow);
-$('#upgradesBtn').addEventListener('click',showArmory);
+$('#howBtn').addEventListener('click',showHow); $('#howBtn').addEventListener('pointerup',showHow);
+$('#upgradesBtn').addEventListener('click',showArmory); $('#upgradesBtn').addEventListener('pointerup',showArmory);
 $('#modalClose').addEventListener('click',()=>ui.modal.classList.add('hidden'));
 ui.modal.addEventListener('click',e=>{if(e.target===ui.modal)ui.modal.classList.add('hidden');});
 
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.mode==='playing')pauseGame();});
 
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));}
+if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});}
+if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});}
 
 updateHomeCoins();
 requestAnimationFrame(loop);
